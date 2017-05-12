@@ -10,7 +10,7 @@ object SortByKey {
   def main(args: Array[String]) {
     val conf = new SparkConf().setMaster("local").setAppName("ReduceByKey")
     val sc = new SparkContext(conf)
-    val arr = List(("A",1),("B",2),("A",2),("B",3))
+    val arr = List(("A",1),("B",2),("A",2),("B",3),("x",1),("e",0))
     val rdd = sc.parallelize(arr)
     val sortByKeyRDD = rdd.sortByKey()
     sortByKeyRDD.foreach(println)
