@@ -11,5 +11,5 @@ To run this project
     
 For more help see the Apache Camel documentation
 
-    http://camel.apache.org/    safen2005/yangshao2 20170512
+    http://camel.apache.org/    safen2005/yangshao2 20170512修改
 
