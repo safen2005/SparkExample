@@ -24,8 +24,16 @@
         <processorPath useClasspath="true" />
         <module name="SparkStreaming" />
       </profile>
+      <profile default="false" name="Annotation profile for SparkExample" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="SparkExample" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="SparkExample" target="1.7" />
       <module name="SparkStreaming" target="1.7" />
     </bytecodeTargetLevel>
   </component>
