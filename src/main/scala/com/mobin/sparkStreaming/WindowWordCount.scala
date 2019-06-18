@@ -13,7 +13,7 @@ object WindowWordCount {
     val ssc = new StreamingContext(conf,Seconds(5))
     ssc.checkpoint(".")
 
-    val lines = ssc.socketTextStream("master",9998)
+    val lines = ssc.socketTextStream("127.0.0.1",9998)
     val words = lines.flatMap(_.split(" "))
     val wordCounts = words.map(x => (x , 1)).reduceByKeyAndWindow(_+_,_+_,Seconds(60),Seconds(10))
     wordCounts.print

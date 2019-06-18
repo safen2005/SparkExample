@@ -12,7 +12,7 @@ object ScoketStreaming {
     val conf = new SparkConf().setMaster("local[2]").setAppName("ScoketStreaming")
     val sc = new StreamingContext(conf,Seconds(10))
 
-    val lines = sc.socketTextStream("master",9998)
+    val lines = sc.socketTextStream("127.0.0.1",9998)
     val words = lines.flatMap(_.split((" ")))
     val wordCounts = words.map(x => (x , 1)).reduceByKey(_ + _)
     wordCounts.print()

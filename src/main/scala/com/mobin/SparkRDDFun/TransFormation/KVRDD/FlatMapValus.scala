@@ -13,6 +13,16 @@ object FlatMapValus {
     val list = List(("mobin",22),("kpop",20),("lufei",23))
     val rdd = sc.parallelize(list)
     val mapValuesRDD = rdd.flatMapValues(x => Seq(x,"male"))
+    /*(mobin,22)
+    (mobin,male)
+    (kpop,20)
+    (kpop,male)
+    (lufei,23)
+    (lufei,male)*/
+    //val mapValuesRDD = rdd.mapValues(x => Seq(x,"male"))
+   /* (mobin,List(22, male))
+    (kpop,List(20, male))
+    (lufei,List(23, male))*/
     mapValuesRDD.foreach(println)
   }
 }

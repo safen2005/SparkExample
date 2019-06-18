@@ -20,7 +20,7 @@ object StateFull {
     val sc = new StreamingContext(conf, Seconds(10))
     sc.checkpoint(".")
 
-    val lines = sc.socketTextStream("master", 9998)
+    val lines = sc.socketTextStream("127.0.0.1", 9998)
     val words = lines.flatMap(_.split(" "))
     val wordDstream = words.map(x => (x, 1))
 

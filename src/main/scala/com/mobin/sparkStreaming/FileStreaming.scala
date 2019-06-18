@@ -8,9 +8,10 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
   */
 object FileStreaming {
   def main(args: Array[String]) {
+
     val conf = new SparkConf().setMaster("local").setAppName("FileStreaming")
     val sc = new StreamingContext(conf,Seconds(5))
-    val lines = sc.textFileStream("/home/hadoop/word")
+    val lines = sc.textFileStream("E:\\IdeaProjects15\\SparkExample\\word")
     val words = lines.flatMap(_.split(" "))
     val wordCounts = words.map(x => (x , 1)).reduceByKey(_ + _)
     sc.start()

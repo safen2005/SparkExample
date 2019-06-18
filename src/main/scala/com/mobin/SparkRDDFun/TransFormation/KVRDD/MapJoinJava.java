@@ -34,29 +34,29 @@ public class MapJoinJava {
 
        // final Broadcast<Map<String,String>> broadcast = sc.broadcast(pairs);
 
-        table1.mapToPair(new PairFunction<String, String, String>() {
-            public Tuple2<String, String> call(String s) throws Exception {
-                int pos = s.indexOf(",");
-                return new Tuple2<String, String>(s.substring(0,pos), s.substring(pos + 1));
-            }
-        }).mapPartitions(new FlatMapFunction<Iterator<Tuple2<String,String>>, Tuple2<String,List<String>>>() {
-            public Iterable<Tuple2<String, List<String>>> call(Iterator<Tuple2<String, String>> tuple2Iterator) throws Exception {
-                List<Tuple2<String, List<String>>> list = null;
-                List l = new ArrayList();
-                while (tuple2Iterator.hasNext()){
-                    Tuple2<String,String> map = tuple2Iterator.next();
-                    if (pairs.containsKey(map._1)){
-                        if(list == null)
-                            list = new ArrayList<Tuple2<String, List<String>>>();
-
-                            l.add(pairs.get(map._1));
-                            l.add(map._2);
-                            list.add(new Tuple2<String, List<String>>(map._1,l));
-                    }
-                }
-                return list;
-            }
-        }).saveAsTextFile("javaMapJoin");
+//        table1.mapToPair(new PairFunction<String, String, String>() {
+//            public Tuple2<String, String> call(String s) throws Exception {
+//                int pos = s.indexOf(",");
+//                return new Tuple2<String, String>(s.substring(0,pos), s.substring(pos + 1));
+//            }
+//        }).mapPartitions(new FlatMapFunction<Iterator<Tuple2<String,String>>, Tuple2<String,List<String>>>() {
+//            public Iterable<Tuple2<String, List<String>>> call(Iterator<Tuple2<String, String>> tuple2Iterator) throws Exception {
+//                List<Tuple2<String, List<String>>> list = null;
+//                List l = new ArrayList();
+//                while (tuple2Iterator.hasNext()){
+//                    Tuple2<String,String> map = tuple2Iterator.next();
+//                    if (pairs.containsKey(map._1)){
+//                        if(list == null)
+//                            list = new ArrayList<Tuple2<String, List<String>>>();
+//
+//                            l.add(pairs.get(map._1));
+//                            l.add(map._2);
+//                            list.add(new Tuple2<String, List<String>>(map._1,l));
+//                    }
+//                }
+//                return list;
+//            }
+//        }).saveAsTextFile("javaMapJoin");
     }
 
 
