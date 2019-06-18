@@ -11,9 +11,10 @@ object FileStreaming {
 
     val conf = new SparkConf().setMaster("local").setAppName("FileStreaming")
     val sc = new StreamingContext(conf,Seconds(5))
-    val lines = sc.textFileStream("E:\\IdeaProjects15\\SparkExample\\word")
+    val lines = sc.textFileStream("word")
     val words = lines.flatMap(_.split(" "))
     val wordCounts = words.map(x => (x , 1)).reduceByKey(_ + _)
+    wordCounts.print()
     sc.start()
     sc.awaitTermination()
   }
