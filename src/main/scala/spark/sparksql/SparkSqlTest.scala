@@ -1,8 +1,8 @@
 package spark.sparksql
 
-import org.apache.parquet.hadoop.ParquetInputFormat
-import org.apache.spark.sql.{SQLContext, SparkSession}
-import org.apache.spark.{SparkConf, SparkContext}
+import java.util.Properties
+
+import org.apache.spark.sql.SparkSession
 
 object SparkSqlTest {
 
@@ -10,14 +10,33 @@ object SparkSqlTest {
     val appName = this.getClass.getSimpleName
     println("appName = "+appName)
 
-    val spark = SparkSession.builder().appName(appName).master("local").getOrCreate()
-    val jdbcDF = spark.read.format("jdbc").option("url","jdbc:mysql://127.0.0.1:3306/ifly_cpcc_bi_zxdg?useUnicode=true&characterEncoding=UTF-8").
-      option("driver","com.mysql.jdbc.Driver").
-      option("dbtable", "temp_app_info").
-      option("user", "root").
-      option("password", "123456").
-      load()
+    val spark = SparkSession.
+                builder().
+                appName(appName).
+                master("local").
+                getOrCreate()
+
+    val jdbcDF = spark.read.format("jdbc").
+                option("url","jdbc:mysql://127.0.0.1:3306/ifly_cpcc_bi_zxdg?useUnicode=true&characterEncoding=UTF-8").
+                option("driver","com.mysql.jdbc.Driver").
+                option("dbtable", "temp_app_info").
+                option("user", "root").
+                option("password", "123456").
+                load()
     jdbcDF.show()
+
+    val connectionProperties: Properties = new Properties()
+    connectionProperties.put("driver", "com.mysql.jdbc.Driver")
+    connectionProperties.put("user", "root")
+    connectionProperties.put("password", "123456")
+
+    val dataDF = spark.read.jdbc("jdbc:mysql://127.0.0.1:3306/jeecmsv8f?useUnicode=true&characterEncoding=UTF-8", "searchkeyword", connectionProperties)
+      .select("insert_time","keyword","search_count")
+      .where(s"insert_time > '2019-06-18'")
+    dataDF.registerTempTable("searchkeyword")
+    spark.sql("SELECT insert_time,keyword,search_count FROM searchkeyword WHERE insert_time > '2019-06-18' ORDER BY insert_time DESC").show(40)
+
+    dataDF.rdd.map(row =>(row(0).toString,row(1).toString,row(2).toString)).foreach(println)
 
     spark.stop()
   }
