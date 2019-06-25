@@ -1,13 +1,10 @@
 package spark.sparkstreaming
 
-/**
-  * Created by 邵洋 on 2017/3/3.
-  */
 import java.io.PrintWriter
 import java.net.ServerSocket
 
 /**
-  * Created by Administrator on 2017/2/13.
+  * Created by 邵洋 on 2019/6/21.
   */
 object GenerateChar {
   def generateContext(index : Int) : String = {
@@ -21,15 +18,15 @@ object GenerateChar {
   def index = {
     import  java.util.Random
     val rdm = new Random
-    rdm.nextInt(7)
+    rdm.nextInt(20)
   }
   def main(args: Array[String]) {
-    val listener = new ServerSocket(9998)
+    val listener = new ServerSocket(9999)
     while(true){
       val socket = listener.accept()
       new Thread(){
         override def run() = {
-          println("Got client connected from :"+ socket.getInetAddress)
+          println("来自 客户端client 连接connected from :"+ socket.getInetAddress)
           val out = new PrintWriter(socket.getOutputStream,true)
           while(true){
             Thread.sleep(500)

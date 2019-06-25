@@ -7,18 +7,17 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 import scala.collection.mutable
 
 /**
-  * Created by hadoop on 4/2/16.
+  * 队列流
+  * Created by 邵洋 on 4/6/19.
   */
 object QueueStream {
 
   def main(args: Array[String]) {
     val conf = new SparkConf().setMaster("local[2]").setAppName("queueStream")
-    val ssc = new StreamingContext(conf,Seconds(1))
-
+    //每隔1秒创建一个RDD，Streaming每隔2秒就对数据进行处理
+    val ssc = new StreamingContext(conf,Seconds(2))
     val rddQueue = new mutable.SynchronizedQueue[RDD[Int]]()
-
     val inputStream = ssc.queueStream(rddQueue)
-
     val mappedStream = inputStream.map(x => (x % 10,1))
     val reduceStream = mappedStream.reduceByKey(_ + _)
     reduceStream.print
@@ -27,7 +26,6 @@ object QueueStream {
       rddQueue += ssc.sparkContext.makeRDD(1 to 100, 2)
       Thread.sleep(1000)
     }
-
     ssc.stop()
   }
 }

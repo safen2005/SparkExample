@@ -13,11 +13,11 @@ object SparkRddTest {
     val spark = SparkSession.builder().master("local").appName(appname).getOrCreate()
     val sc = spark.sparkContext
 
-    val rdd = sc.textFile("word\\word.txt").filter(line=>{line.contains("spark")})
-    println(rdd.count())
-    println(rdd.collect().length+"")
-    println(rdd.first())
-    rdd.take(1).foreach(println)
+//    val rdd = sc.textFile("word\\word.txt").filter(line=>{line.contains("spark")})
+//    println(rdd.count())
+//    println(rdd.collect().length+"")
+//    println(rdd.first())
+//    rdd.take(1).foreach(println)
 //
 //    val words=rdd.flatMap(line => line.split(" "))
 //    println(words.count())
@@ -60,10 +60,13 @@ object SparkRddTest {
 //    println(rdd2.partitions.size)
 
     //常用的键值对RDD转换操作 reduceByKey和groupByKey的区别
-    val words = List("one","two","two","three","three","three")
-    val wordPairsRDD = sc.parallelize(words).map(word => (word,1))
-    wordPairsRDD.reduceByKey(_+_).foreach(println)
-    wordPairsRDD.groupByKey().map(t=>(t._1,t._2.sum)).foreach(println)
+//    val words = List("one","two","two","three","three","three")
+//    val wordPairsRDD = sc.parallelize(words).map(word => (word,1))
+//    wordPairsRDD.reduceByKey(_+_).foreach(println)
+//    wordPairsRDD.groupByKey().map(t=>(t._1,t._2.sum)).foreach(println)
+
+    val rdd = sc.parallelize(Array(("spark",2),("hadoop",6),("hadoop",4),("spark",6)))
+    rdd.mapValues(x => (x,1)).reduceByKey((x,y) => (x._1+y._1,x._2 + y._2)).mapValues(x => (x._1 / x._2)).collect().foreach(println)
 
     sc.stop()
     spark.stop()
