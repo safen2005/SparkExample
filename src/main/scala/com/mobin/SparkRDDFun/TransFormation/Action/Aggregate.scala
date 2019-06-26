@@ -3,7 +3,6 @@ package com.mobin.SparkRDDFun.TransFormation.Action
 import org.apache.spark.{SparkContext, SparkConf}
 
 /**
-  * Created by hadoop on 4/20/16.
   * seqOp函数将每个分区的数据聚合成类型为U的值，comOp函数将各分区的U类型数据聚合起来得到类型为U的值
   */
 object Aggregate {

@@ -2,9 +2,6 @@ package com.mobin.SparkRDDFun.TransFormation.KVRDD
 
 import org.apache.spark.{SparkContext, SparkConf}
 
-/**
-  * Created by Mobin on 2016/11/14.
-  */
 object MapSideJoin {
 
   def main(args: Array[String]) {

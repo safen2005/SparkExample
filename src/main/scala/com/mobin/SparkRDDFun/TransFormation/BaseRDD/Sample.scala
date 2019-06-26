@@ -2,9 +2,6 @@ package com.mobin.SparkRDDFun.TransFormation.BaseRDD
 
 import org.apache.spark.{SparkConf, SparkContext}
 
-/**
-  * Created by hadoop on 4/7/16.
-  */
 object Sample {
 
   def main(args: Array[String]) {

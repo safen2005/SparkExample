@@ -4,7 +4,7 @@ import java.io.PrintWriter
 import java.net.ServerSocket
 
 /**
-  * Created by hadoop on 3/28/16.
+  * Created by 邵洋 on 6/20/19.
   */
 object GenerateChar {
   def generateContext(index : Int) : String = {

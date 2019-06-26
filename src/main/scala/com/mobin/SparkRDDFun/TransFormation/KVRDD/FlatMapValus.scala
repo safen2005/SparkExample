@@ -3,7 +3,6 @@ package com.mobin.SparkRDDFun.TransFormation.KVRDD
 import org.apache.spark.{SparkContext, SparkConf}
 
 /**
-  * Created by hadoop on 4/10/16.
   * 对[K,V]型数据中的V值flatmap操作
   */
 object FlatMapValus {

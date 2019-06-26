@@ -15,9 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by Mobin on 2016/11/14.
- */
 public class MapJoinJava {
     public static void main(String[] args) {
         SparkConf conf = new SparkConf().setMaster("local[2]").setAppName("JavaMapSide");

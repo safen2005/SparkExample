@@ -3,7 +3,6 @@ package com.mobin.SparkRDDFun.TransFormation.Action
 import org.apache.spark.{SparkContext, SparkConf}
 
 /**
-  * Created by hadoop on 4/19/16.
   * reduce(func):通过函数func先聚集各分区的数据集，再聚集分区之间的数据，func接收两个参数，返回一个新值，
   * 新值再做为参数继续传递给函数func，直到最后一个元素
   */

@@ -2,9 +2,6 @@ package com.mobin.SparkRDDFun.TransFormation.KVRDD
 
 import org.apache.spark.{SparkContext, SparkConf}
 
-/**
-  * Created by hadoop on 4/11/16.
-  */
 object CombineByKey1 {
 
   def main(args: Array[String]) {

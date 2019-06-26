@@ -5,7 +5,6 @@ import org.apache.spark.{SparkConf, SparkContext}
 import scala.util.Random
 
 /**
-  * Created by hadoop on 3/6/16.
   * 为文件中的第一个字段拼接一个随机值再写入HDFS
   */
 object WriteToHDFS {

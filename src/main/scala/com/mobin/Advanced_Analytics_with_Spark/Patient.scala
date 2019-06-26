@@ -2,9 +2,6 @@ package com.mobin.Advanced_Analytics_with_Spark
 
 import org.apache.spark.{SparkContext, SparkConf}
 
-/**
-  * Created by Mobin on 2017/3/7.
-  */
 case class MatchData(id1: Int, id2: Int, scores: Array[Double], matched: Boolean)
 object Patient {
 

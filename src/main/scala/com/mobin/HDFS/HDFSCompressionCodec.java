@@ -14,9 +14,6 @@ import org.apache.hadoop.util.ReflectionUtils;
 
 import java.io.*;
 
-/**
- * Created by Mobin on 2016/12/19.
- */
 public class HDFSCompressionCodec {
     private static  final Configuration conf = new Configuration();
     private static FileSystem fs = null;

@@ -3,7 +3,6 @@ package com.mobin.SparkRDDFun.TransFormation.Action
 import org.apache.spark.{SparkContext, SparkConf}
 
 /**
-  * Created by hadoop on 4/20/16.
   * 通过op函数聚合各分区中的元素及合并各分区的元素，op函数需要两个参数，在开始时第一个传入的参数为zeroValue,T为RDD数据集的数据类型
   */
 object Fold {

@@ -2,9 +2,6 @@ package com.mobin.SparkRDDFun.TransFormation.Action
 
 import org.apache.spark.{SparkContext, SparkConf}
 
-/**
-  * Created by hadoop on 4/19/16.
-  */
 object KVFunc {
 
   def main(args: Array[String]) {

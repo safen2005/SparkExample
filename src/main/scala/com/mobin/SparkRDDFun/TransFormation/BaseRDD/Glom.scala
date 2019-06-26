@@ -3,7 +3,6 @@ package com.mobin.SparkRDDFun.TransFormation.BaseRDD
 import org.apache.spark.{SparkConf, SparkContext}
 
 /**
-  * Created by hadoop on 4/9/16.
   * 将RDD的每个分区中的类型为T的元素转换换数组Array[T]
   */
 object Glom {

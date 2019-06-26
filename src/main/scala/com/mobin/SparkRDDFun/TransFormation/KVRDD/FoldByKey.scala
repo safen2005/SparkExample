@@ -2,9 +2,6 @@ package com.mobin.SparkRDDFun.TransFormation.KVRDD
 
 import org.apache.spark.{SparkContext, SparkConf}
 
-/**
-  * Created by hadoop on 4/11/16.
-  */
 object FoldByKey {
   /**
     * foldByKey函数是通过调用CombineByKey函数实现的

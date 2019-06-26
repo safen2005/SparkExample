@@ -3,7 +3,6 @@ package com.mobin.SparkRDDFun.TransFormation.KVRDD
 import org.apache.spark.{HashPartitioner, SparkContext, SparkConf}
 
 /**
-  * Created by hadoop on 4/10/16.
   * 对[K,V]型数据中的V值map操作
   */
 object MapValues {

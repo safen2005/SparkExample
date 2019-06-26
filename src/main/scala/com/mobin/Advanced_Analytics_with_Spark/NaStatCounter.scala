@@ -1,9 +1,7 @@
 package com.mobin.Advanced_Analytics_with_Spark
 
 import org.apache.spark.util.StatCounter
-/**
-  * Created by Mobin on 2017/3/8.
-  */
+
 class NaStatCounter extends  Serializable{
 
   val  stats: StatCounter = new StatCounter()

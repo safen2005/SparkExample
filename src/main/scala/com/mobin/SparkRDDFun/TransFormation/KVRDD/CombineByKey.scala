@@ -3,7 +3,6 @@ package com.mobin.SparkRDDFun.TransFormation.KVRDD
 import org.apache.spark.{HashPartitioner, SparkContext, SparkConf}
 
 /**
-  * Created by hadoop on 4/11/16.
   * 统计男性和女生的个数，并以（性别，（名字，名字....），个数）的形式输出
   */
 object CombineByKey {

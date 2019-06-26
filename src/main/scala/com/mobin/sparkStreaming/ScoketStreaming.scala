@@ -4,7 +4,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 /**
-  * Created by hadoop on 3/28/16.
+  * Created by 邵洋 on 6/20/19.
   */
 object ScoketStreaming {
 
