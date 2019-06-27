@@ -14,9 +14,9 @@ object WindowWordCount {
     ssc.checkpoint(".")
     val lines = ssc.socketTextStream("127.0.0.1",9998)
     val words = lines.flatMap(_.split(" "))
-//    val wordCounts = words.map(x => (x , 1)).reduceByKeyAndWindow(_+_,_+_,Seconds(60),Seconds(10))
-//    wordCounts.print
-    words.map(x=>(x,1)).countByValueAndWindow(Seconds(60),Seconds(10)).print()
+    val wordCounts = words.map(x => (x , 1)).reduceByKeyAndWindow(_+_,_+_,Seconds(60),Seconds(10))
+    wordCounts.print
+//    words.map(x=>(x,1)).countByValueAndWindow(Seconds(60),Seconds(10)).print()
     ssc.start()
     ssc.awaitTermination()
   }
