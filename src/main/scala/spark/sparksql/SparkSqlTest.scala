@@ -2,7 +2,7 @@ package spark.sparksql
 
 import java.util.Properties
 
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{SaveMode, SparkSession}
 
 object SparkSqlTest {
 
@@ -13,30 +13,60 @@ object SparkSqlTest {
     val spark = SparkSession.
                 builder().
                 appName(appName).
-                master("local").
+                master("local[2]").
                 getOrCreate()
-
+//    var sql = "select cast(id as char) as c_id," +
+//      "name as c_name," +
+//      "gender as c_gender," +
+//      "cast(age as char) as c_age," +
+//      "cast(dd as char) as c_dd," +
+//      "cast(ddtime as char) as c_ddtime," +
+//      "cast(is_flag as char) as c_is_flag," +
+//      "cast(money as char) as c_money," +
+//      "cast(ts as char) as c_ts from student"
+    val sql = "select concat(id,'') as c_id," +
+      "name as c_name," +
+      "gender as c_gender," +
+      "concat(age,'') as c_age," +
+      "concat(dd,'') as c_dd," +
+      "concat(ddtime,'') as c_ddtime," +
+      "concat(is_flag,'') as c_is_flag," +
+      "concat(money,'') as c_money," +
+      "concat(ts,'') as c_ts from student"
     val jdbcDF = spark.read.format("jdbc").
-                option("url","jdbc:mysql://127.0.0.1:3306/ifly_cpcc_bi_zxdg?useUnicode=true&characterEncoding=UTF-8").
+                option("url","jdbc:mysql://127.0.0.1:3306/?useUnicode=true&characterEncoding=UTF-8").
                 option("driver","com.mysql.jdbc.Driver").
-                option("dbtable", "temp_app_info").
+                option("dbtable", "spark.student").
                 option("user", "root").
                 option("password", "123456").
+                option("partitionColumn", "id").
+                option("numPartitions", 4).
+                option("lowerBound", 1).
+                option("upperBound", 4).
                 load()
-    jdbcDF.show()
+    println(jdbcDF.rdd.partitions.size)
+//    jdbcDF.show()
+//    jdbcDF.schema
 
-    val connectionProperties: Properties = new Properties()
-    connectionProperties.put("driver", "com.mysql.jdbc.Driver")
-    connectionProperties.put("user", "root")
-    connectionProperties.put("password", "123456")
+    jdbcDF.registerTempTable("student")
+    val df = spark.sql(sql)
+    println(df.rdd.partitions.size)
+    df.write.mode(SaveMode.Overwrite).parquet("student")
 
-    val dataDF = spark.read.jdbc("jdbc:mysql://127.0.0.1:3306/jeecmsv8f?useUnicode=true&characterEncoding=UTF-8", "searchkeyword", connectionProperties)
-      .select("insert_time","keyword","search_count")
-      .where(s"insert_time > '2019-06-18'")
-    dataDF.registerTempTable("searchkeyword")
-    spark.sql("SELECT insert_time,keyword,search_count FROM searchkeyword WHERE insert_time > '2019-06-18' ORDER BY insert_time DESC").show(40)
+    spark.read.parquet("student").show()
 
-    dataDF.rdd.map(row =>(row(0).toString,row(1).toString,row(2).toString)).foreach(println)
+//    val connectionProperties: Properties = new Properties()
+//    connectionProperties.put("driver", "com.mysql.jdbc.Driver")
+//    connectionProperties.put("user", "root")
+//    connectionProperties.put("password", "123456")
+//
+//    val dataDF = spark.read.jdbc("jdbc:mysql://127.0.0.1:3306/jeecmsv8f?useUnicode=true&characterEncoding=UTF-8", "searchkeyword", connectionProperties)
+//      .select("insert_time","keyword","search_count")
+//      .where(s"insert_time > '2019-06-18'")
+//    dataDF.registerTempTable("searchkeyword")
+//    spark.sql("SELECT insert_time,keyword,search_count FROM searchkeyword WHERE insert_time > '2019-06-18' ORDER BY insert_time DESC").show(40)
+//
+//    dataDF.rdd.map(row =>(row(0).toString,row(1).toString,row(2).toString)).foreach(println)
 
     spark.stop()
   }
