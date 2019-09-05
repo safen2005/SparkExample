@@ -3,6 +3,7 @@ package spark.sparksql
 import java.util.Properties
 
 import org.apache.spark.sql.{SaveMode, SparkSession}
+import org.apache.spark.storage.StorageLevel
 
 object SparkSqlTest {
 
@@ -15,7 +16,71 @@ object SparkSqlTest {
                 appName(appName).
                 master("local[2]").
                 getOrCreate()
-//    var sql = "select cast(id as char) as c_id," +
+        val prop: Properties = new Properties()
+        prop.put("driver", "com.mysql.jdbc.Driver")
+        prop.put("user", "root")
+        prop.put("password", "123456")
+
+//    val predicates =
+//      Array(
+//        "2019-09-01" -> "2019-09-01 23:59:59",
+//        "2019-09-02" -> "2019-09-02 23:59:59",
+//        "2019-09-03" -> "2019-09-03 23:59:59",
+//        "2019-09-04" -> "2019-09-04 23:59:59"
+//      ).map {
+//        case (start, end) =>
+//          s"cast(CreateTime as date) >= date '$start' " + s"AND cast(CreateTime as date) <= date '$end'"
+//      }
+
+    val predicates =
+      Array(
+        "2015-01-01" -> "2015-03-31 23:59:59",
+        "2015-04-01" -> "2015-06-30 23:59:59",
+        "2015-07-01" -> "2015-09-30 23:59:59",
+        "2015-10-01" -> "2015-12-31 23:59:59",
+        "2016-01-01" -> "2016-03-31 23:59:59",
+        "2016-04-01" -> "2016-06-30 23:59:59",
+        "2016-07-01" -> "2016-09-30 23:59:59",
+        "2016-10-01" -> "2016-12-31 23:59:59",
+        "2017-01-01" -> "2017-03-31 23:59:59",
+        "2017-04-01" -> "2017-06-30 23:59:59",
+        "2017-07-01" -> "2017-09-30 23:59:59",
+        "2017-10-01" -> "2017-12-31 23:59:59",
+        "2018-01-01" -> "2018-03-31 23:59:59",
+        "2018-04-01" -> "2018-06-30 23:59:59",
+        "2018-07-01" -> "2018-09-30 23:59:59",
+        "2018-10-01" -> "2018-12-31 23:59:59",
+        "2019-01-01" -> "2019-03-31 23:59:59",
+        "2019-04-01" -> "2019-06-30 23:59:59",
+        "2019-07-01" -> "2019-09-30 23:59:59",
+        "2019-10-01" -> "2019-12-31 23:59:59",
+        "2020-01-01" -> "2020-03-31 23:59:59",
+        "2020-04-01" -> "2020-06-30 23:59:59",
+        "2020-07-01" -> "2020-09-30 23:59:59",
+        "2020-10-01" -> "2020-12-31 23:59:59",
+        "2021-01-01" -> "2021-03-31 23:59:59",
+        "2021-04-01" -> "2021-06-30 23:59:59",
+        "2021-07-01" -> "2021-09-30 23:59:59",
+        "2021-10-01" -> "2021-12-31 23:59:59",
+        "2022-01-01" -> "2022-03-31 23:59:59",
+        "2022-04-01" -> "2022-06-30 23:59:59",
+        "2022-07-01" -> "2022-09-30 23:59:59",
+        "2022-10-01" -> "2022-12-31 23:59:59"
+      ).map {
+        case (start, end) =>
+          s"cast(CreateTime as date) >= date '$start' " + s"AND cast(CreateTime as date) <= date '$end'"
+      }
+
+    // 取得该表数据
+    val jdbcDF = spark.read.jdbc("jdbc:mysql://127.0.0.1:3306/?useUnicode=true&characterEncoding=UTF-8",
+                                  "spark.orderinfo",predicates,prop)
+    println(jdbcDF.rdd.partitions.size)
+    jdbcDF.registerTempTable("orderinfo")
+    val df = spark.sql("select count(*) from orderinfo")
+    df.show()
+    //df.write.mode(SaveMode.Overwrite).parquet("orderinfo")
+
+//    val mysql = "(select cast(id as char) as c_id," +
 //      "name as c_name," +
 //      "gender as c_gender," +
 //      "cast(age as char) as c_age," +
@@ -23,37 +88,54 @@ object SparkSqlTest {
 //      "cast(ddtime as char) as c_ddtime," +
 //      "cast(is_flag as char) as c_is_flag," +
 //      "cast(money as char) as c_money," +
-//      "cast(ts as char) as c_ts from student"
-    val sql = "select concat(id,'') as c_id," +
-      "name as c_name," +
-      "gender as c_gender," +
-      "concat(age,'') as c_age," +
-      "concat(dd,'') as c_dd," +
-      "concat(ddtime,'') as c_ddtime," +
-      "concat(is_flag,'') as c_is_flag," +
-      "concat(money,'') as c_money," +
-      "concat(ts,'') as c_ts from student"
-    val jdbcDF = spark.read.format("jdbc").
-                option("url","jdbc:mysql://127.0.0.1:3306/?useUnicode=true&characterEncoding=UTF-8").
-                option("driver","com.mysql.jdbc.Driver").
-                option("dbtable", "spark.student").
-                option("user", "root").
-                option("password", "123456").
-                option("partitionColumn", "id").
-                option("numPartitions", 4).
-                option("lowerBound", 1).
-                option("upperBound", 4).
-                load()
-    println(jdbcDF.rdd.partitions.size)
-//    jdbcDF.show()
-//    jdbcDF.schema
+//      "cast(ts as char) as c_ts from spark.student) as query"
+//
+//    val jdbcDF = spark.read.format("jdbc").
+//                option("url","jdbc:mysql://127.0.0.1:3306/?useUnicode=true&characterEncoding=UTF-8").
+//                option("driver","com.mysql.jdbc.Driver").
+//                option("dbtable", mysql).
+//                option("user", "root").
+//                option("password", "123456").
+////                option("partitionColumn", "id").
+////                option("numPartitions", 4).
+////                option("lowerBound", 1).
+////                option("upperBound", 4).
+//                load()
+//                .rdd
+//                .persist(StorageLevel.MEMORY_ONLY)
+//    val keys = jdbcDF
+//      .map {
+//        Row => (Row.getAs("c_id").toString, Row.getAs("c_name").toString, Row.getAs("c_gender").toString)
+//      }
+//      .collect()
+//
+//    println("keys = "+keys)
+//    println("keys.size = "+keys.size)
+//    var id = ""
+//    var name = ""
+//    var gender = ""
+//    if(keys.size>0){
+//      id = keys.apply(0)._1
+//      name = keys.apply(0)._2
+//      gender = keys.apply(0)._3
+//    }
+//    println(id+" "+" "+name+" "+gender)
+//    val sql = "select concat(id,'') as c_id," +
+//      "name as c_name," +
+//      "gender as c_gender," +
+//      "concat(age,'') as c_age," +
+//      "concat(dd,'') as c_dd," +
+//      "concat(ddtime,'') as c_ddtime," +
+//      "concat(is_flag,'') as c_is_flag," +
+//      "concat(money,'') as c_money," +
+//      "concat(ts,'') as c_ts from student"
 
-    jdbcDF.registerTempTable("student")
-    val df = spark.sql(sql)
-    println(df.rdd.partitions.size)
-    df.write.mode(SaveMode.Overwrite).parquet("student")
-
-    spark.read.parquet("student").show()
+//    jdbcDF.registerTempTable("student")
+//    val df = spark.sql(sql)
+//    println(df.rdd.partitions.size)
+//    df.write.mode(SaveMode.Overwrite).parquet("student")
+//
+//    spark.read.parquet("student").show()
 
 //    val connectionProperties: Properties = new Properties()
 //    connectionProperties.put("driver", "com.mysql.jdbc.Driver")
