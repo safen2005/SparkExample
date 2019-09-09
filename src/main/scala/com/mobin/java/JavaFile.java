@@ -3,18 +3,14 @@ package com.mobin.java;
 public class JavaFile {
 
     public static void main(String[] args) {
-        System.out.println("ods_cbg_iflyrec_bserviceist_t_account_trans_record".toLowerCase());
+        System.out.println("ods_cbg_iflyrec_rechargecard_StoreOrderDetail".toLowerCase());
 
-        String s1= "atr_id\n" +
-                "mid\n" +
-                "did\n" +
-                "start_time\n" +
-                "end_time\n" +
-                "status\n" +
-                "created_time\n" +
-                "created_by\n" +
-                "updated_time\n" +
-                "updated_by";
+        String s1= "Id\n" +
+                "StoreOrderId\n" +
+                "ProductId\n" +
+                "ProductNo\n" +
+                "CreateTime\n" +
+                "UpdateTime";
         String[] sarr = s1.split("\n");
         //System.out.println(sarr.length);
         String s3="";
