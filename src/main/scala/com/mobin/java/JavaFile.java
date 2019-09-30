@@ -3,14 +3,17 @@ package com.mobin.java;
 public class JavaFile {
 
     public static void main(String[] args) {
-        System.out.println("ods_cbg_iflyrec_rechargecard_StoreOrderDetail".toLowerCase());
+        System.out.println("ods_cbg_iflyrec_rechargecard_RoleServicePermissionHandlingRecord".toLowerCase());
 
         String s1= "Id\n" +
-                "StoreOrderId\n" +
-                "ProductId\n" +
-                "ProductNo\n" +
-                "CreateTime\n" +
-                "UpdateTime";
+                "UserId\n" +
+                "UserRoleId\n" +
+                "PermissionName\n" +
+                "PermissionType\n" +
+                "PermissionProperties\n" +
+                "HandlingType\n" +
+                "HandleTime\n" +
+                "HandlingResult";
         String[] sarr = s1.split("\n");
         //System.out.println(sarr.length);
         String s3="";
