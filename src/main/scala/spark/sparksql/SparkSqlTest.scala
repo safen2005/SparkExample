@@ -75,6 +75,8 @@ object SparkSqlTest {
     val jdbcDF = spark.read.jdbc("jdbc:mysql://127.0.0.1:3306/?useUnicode=true&characterEncoding=UTF-8",
                                   "spark.orderinfo",predicates,prop)
     println(jdbcDF.rdd.partitions.size)
+    val jrdd = jdbcDF.rdd.map(r=>{(r.getAs("UserId"),r.getAs("Name"))})
+    jrdd.foreach(println)
     jdbcDF.registerTempTable("orderinfo")
     val df = spark.sql("select count(*) from orderinfo")
     df.show()
