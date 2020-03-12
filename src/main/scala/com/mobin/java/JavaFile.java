@@ -3,34 +3,19 @@ package com.mobin.java;
 public class JavaFile {
 
     public static void main(String[] args) {
-        System.out.println("ods_cbg_iflyrec_transcriptengineproxy_AudioTranscriptTasks".toLowerCase());
+        System.out.println("ods_cbg_iflyrec_l1_t_meeting_attendee".toLowerCase());
 
-        String s1= "Id\n" +
-                "BizId\n" +
-                "TraceId\n" +
-                "TaskId\n" +
-                "Language\n" +
-                "HotWords\n" +
-                "PatchIds\n" +
-                "AudioName\n" +
-                "AudioInfo\n" +
-                "AudioFileSize\n" +
-                "CallbackUrl\n" +
-                "AudioFileUrl\n" +
-                "ScheduleInfo\n" +
-                "Priority\n" +
-                "Status\n" +
-                "FailDescription\n" +
-                "CallbackStatus\n" +
-                "CallbackCount\n" +
-                "ChannelId\n" +
-                "TransRequestSendTime\n" +
-                "ReceiveEngineTime\n" +
-                "CallbackTime\n" +
-                "CreateTime\n" +
-                "UpdateTime\n" +
-                "IsIdleOrder\n" +
-                "AudioId";
+        String s1= "ma_id\n" +
+                "m_id\n" +
+                "join_time\n" +
+                "leave_time\n" +
+                "ds_id\n" +
+                "device_type\n" +
+                "status\n" +
+                "created_time\n" +
+                "created_by\n" +
+                "updated_time\n" +
+                "updated_by";
         String[] sarr = s1.split("\n");
         String s3="";
         String s4="";

@@ -40,7 +40,8 @@ object ALSExample {
       .setItemCol("movieId")
       .setRatingCol("rating")
     val model = als.fit(training)
-
+    model.userFactors.show(10)
+    model.itemFactors.show(10)
     // Evaluate the model by computing the RMSE on the test data
     val predictions = model.transform(test)
 
@@ -54,18 +55,20 @@ object ALSExample {
 
     // Generate top 10 movie recommendations for each user
     val userRecs = model.recommendForAllUsers(10)
-    userRecs.show(20)
+    //userRecs.show(20)
     // Generate top 10 user recommendations for each movie
     val movieRecs = model.recommendForAllItems(10)
-    movieRecs.show(20)
-
+    //movieRecs.show(20)
     // Generate top 10 movie recommendations for a specified set of users
     val users = ratings.select(als.getUserCol).distinct().limit(3)
+    //users.show(10)
     val userSubsetRecs = model.recommendForUserSubset(users, 10)
+    //userSubsetRecs.show(10)
     // Generate top 10 user recommendations for a specified set of movies
     val movies = ratings.select(als.getItemCol).distinct().limit(3)
+    movies.show(10)
     val movieSubSetRecs = model.recommendForItemSubset(movies, 10)
-
+    movieSubSetRecs.select("recommendations").rdd.map(r=>{r.getSeq(0).toList}).foreach(println)
     spark.stop()
   }
 }
