@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonObject;
 import org.joda.time.DateTime;
 
-import java.io.File;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -310,9 +310,30 @@ public class JavaTest3 {
 
 //        List rsList = new LinkedList<JSONObject>();
 //        System.out.println(rsList.size());
-        String s1 = "ABc";
-        String s2 = "abC";
-        System.out.println(s1.equalsIgnoreCase(s2));
-        System.out.println(s2.equalsIgnoreCase(s1));
+//        String s1 = "ABc";
+//        String s2 = "abC";
+//        System.out.println(s1.equalsIgnoreCase(s2));
+//        System.out.println(s2.equalsIgnoreCase(s1));
+
+//        int i =1;
+//        for(int j=0;j<10;j++){
+//            System.out.println(i++);
+//        }
+
+        File file = new File("iflyrec.properties");//定义一个file对象，用来初始化FileReader
+        FileReader reader = new FileReader(file);//定义一个fileReader对象，用来初始化BufferedReader
+        BufferedReader bReader = new BufferedReader( new InputStreamReader(new FileInputStream(file),"UTF-8") );//new一个BufferedReader对象，将文件内容读取到缓存
+
+        StringBuilder sb = new StringBuilder();//定义一个字符串缓存，将字符串存放缓存中
+        String s = "";
+        while ((s =bReader.readLine()) != null) {//逐行读取文件内容，不读取换行符和末尾的空格
+            //sb.append(s + "\n");//将读取的字符串添加换行符后累加存放在缓存中
+            //System.out.println(s.substring(0,s.indexOf("="))+" "+s.substring(s.lastIndexOf("from ")+5));
+            System.out.println("/project/daas/daas/data_warehouse/db/ods/"+s.substring(s.lastIndexOf("from ")+5));
+            //System.out.println(s);
+        }
+        bReader.close();
+        String str = sb.toString();
+        System.out.println(str );
     }
 }

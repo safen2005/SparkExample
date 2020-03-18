@@ -68,7 +68,6 @@ object ALSExample {
     val movies = ratings.select(als.getItemCol).distinct().limit(3)
     movies.show(10)
     val movieSubSetRecs = model.recommendForItemSubset(movies, 10)
-    movieSubSetRecs.select("recommendations").rdd.map(r=>{r.getSeq(0).toList}).foreach(println)
     spark.stop()
   }
 }

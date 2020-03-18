@@ -3,19 +3,20 @@ package com.mobin.java;
 public class JavaFile {
 
     public static void main(String[] args) {
-        System.out.println("ods_cbg_iflyrec_l1_t_meeting_attendee".toLowerCase());
+        System.out.println("ods_cbg_iflyrec_VpsProduct".toLowerCase());
 
-        String s1= "ma_id\n" +
-                "m_id\n" +
-                "join_time\n" +
-                "leave_time\n" +
-                "ds_id\n" +
-                "device_type\n" +
-                "status\n" +
-                "created_time\n" +
-                "created_by\n" +
-                "updated_time\n" +
-                "updated_by";
+        String s1= "Id\n" +
+                "BizId\n" +
+                "Title\n" +
+                "Content\n" +
+                "Details\n" +
+                "ShowPrice\n" +
+                "SellPrice\n" +
+                "TradeProductId\n" +
+                "CreateTime\n" +
+                "UpdateTime\n" +
+                "Deleted\n" +
+                "ProductType";
         String[] sarr = s1.split("\n");
         String s3="";
         String s4="";
