@@ -199,5 +199,8 @@
     <orderEntry type="library" name="Maven: commons-pool:commons-pool:1.5.6" level="project" />
     <orderEntry type="library" name="Maven: redis.clients:jedis:2.7.0" level="project" />
     <orderEntry type="library" name="Maven: com.alibaba:fastjson:1.2.47" level="project" />
+    <orderEntry type="library" name="Maven: org.tensorflow:tensorflow:1.15.0" level="project" />
+    <orderEntry type="library" name="Maven: org.tensorflow:libtensorflow:1.15.0" level="project" />
+    <orderEntry type="library" name="Maven: org.tensorflow:libtensorflow_jni:1.15.0" level="project" />
   </component>
 </module>
