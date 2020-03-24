@@ -1,9 +1,15 @@
 package spark.ml.recommendation
 
 // $example on$
+import com.alibaba.fastjson.{JSONArray, JSONObject}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.ml.recommendation.ALS
+import org.apache.spark.sql.{Row, SaveMode}
+import org.apache.spark.sql.types.StructType
+
+import scala.collection.mutable
+import scala.reflect.ClassTag
 // $example off$
 import org.apache.spark.sql.SparkSession
 
@@ -25,6 +31,18 @@ object ALSExampleWithCommit {
     //      返回分割好的Rating对象,注意用户Id列以及产品id列，必须是整数（如果是其他数值类型，只要在整形范围内，都会转为integers）
     Rating(fields(0).toInt, fields(1).toInt, fields(2).toFloat, fields(3).toLong)
   }
+
+  // 标准推荐对象，productId,score
+  case class Recommendation(productId: Int, score:Double)
+
+  // 用户推荐列表
+  case class UserRecs(userId: Int, recs: Seq[Recommendation])
+
+  // 用户推荐列表2
+  case class UserRecsString(userId: Int, recs: String)
+
+  // 商品相似度（商品推荐）
+  case class ProductRecs(productId: Int, recs: Seq[Recommendation])
 
   // $example off$
 
@@ -56,23 +74,93 @@ object ALSExampleWithCommit {
       .setUserCol("userId")
       .setItemCol("movieId")
       .setRatingCol("rating")
+    //使用ALS在训练数据上建立推荐模型
     val model = als.fit(training)
+    model.userFactors.show(5)
+    //model.userFactors.select("features").rdd.foreach(println)
+    model.itemFactors.show(5)
 
-    // 通过计算测试集上的均方根误差来评估模型
     // transform操作会增加一个prediction列
     val predictions = model.transform(test)
-    println("=================predictions")
     predictions.printSchema()
-    predictions.show(7)
-
+    predictions.show(5)
+    // 通过计算测试集上的均方根误差来评估模型
     val evaluator = new RegressionEvaluator()
       .setMetricName("rmse")
       .setLabelCol("rating")
       .setPredictionCol("prediction")
     val rmse = evaluator.evaluate(predictions)
     println(s"Root-mean-square error = $rmse")
+
+    // Generate top 10 movie recommendations for each user
+    val userRecs = model.recommendForAllUsers(3)
+    userRecs.show(5)
+    userRecs.select("userId", "recommendations").rdd.map(r => (r.getInt(0), parseRow2String(r))).toDF("userId","recommendations")
+      .write.mode(SaveMode.Overwrite)
+      .format("jdbc")
+      .option("driver", "com.mysql.jdbc.Driver")
+      .option("url", "jdbc:mysql://172.16.59.13:10065/daas_test?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true")
+      .option("dbtable", "recommendForAllUsers")
+      .option("user", "daas_test_admin")
+      .option("password", "cGdyr7ce0D9wYMkg")
+      .save()
+
+    userRecs.select("recommendations").rdd.map((r: Row) =>{
+      val row: Seq[Int] = r.getAs[Seq[Row]](0).map(x =>{
+        x.getInt(0)
+      })
+      row.mkString(",")
+    }).toDF().show()
+
+    //userRecs.select("userId", "recommendations").map(r => (r.getInt(0), parseList2String(r.getSeq(1).mkString("&").replace("[","").replace("]",""))))
+//    userRecs.select("userId", "recommendations").map(r => (r.getInt(0), parseSeq2String(r.getSeq(1))))
+//      .write.mode(SaveMode.Overwrite)
+//      .format("jdbc")
+//      .option("driver", "com.mysql.jdbc.Driver")
+//      .option("url", "jdbc:mysql://172.16.59.13:10065/daas_test?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true")
+//      .option("dbtable", "recommendForAllUsers")
+//      .option("user", "daas_test_admin")
+//      .option("password", "cGdyr7ce0D9wYMkg")
+//      .save()
+
+    // Generate top 10 user recommendations for each movie
+    val movieRecs = model.recommendForAllItems(3)
+    movieRecs.show(5)
+    // Generate top 10 movie recommendations for a specified set of users
+    val users = ratings.select(als.getUserCol).distinct().limit(3)
+    users.show()
+    val userSubsetRecs = model.recommendForUserSubset(users, 10)
+    userSubsetRecs.show()
+    // Generate top 10 user recommendations for a specified set of movies
+    val movies = ratings.select(als.getItemCol).distinct().limit(3)
+    movies.show()
+    val movieSubSetRecs = model.recommendForItemSubset(movies, 10)
+    movieSubSetRecs.show()
     // $example off$
     spark.stop()
   }
 
+  def parseRow2String(r: Row): String={
+    val row: Seq[Int] = r.getAs[Seq[Row]](1).map(x =>{
+      x.getInt(0)
+    })
+    row.mkString(",")
+  }
+
+  def parseSeq2String(par :scala.collection.Seq[StructType]): String={
+    val empty: java.util.List[String] = new java.util.ArrayList[String](par.size)
+    for (i <- 0 until par.size) {
+      empty.add(par.apply(i)+"")
+    }
+    empty.toArray.mkString(",")
+  }
+
+  def parseList2String(par :String): String={
+    val pararr= par.split("&")
+    val empty: java.util.List[String] = new java.util.ArrayList[String](pararr.size)
+    for (i <- 0 until pararr.size) {
+      empty.add(pararr(i).split(",")(0))
+    }
+    empty.toArray.mkString(",")
+  }
 }

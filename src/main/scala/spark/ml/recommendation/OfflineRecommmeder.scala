@@ -3,7 +3,7 @@ package spark.ml.recommendation
 import com.alibaba.fastjson.{JSONArray, JSONObject}
 import org.apache.spark.SparkConf
 import org.apache.spark.mllib.recommendation.{ALS, Rating}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.jblas.DoubleMatrix
 
 object OfflineRecommmeder {
@@ -84,13 +84,26 @@ object OfflineRecommmeder {
       .map(rating => (rating.user,(rating.product, rating.rating)))
       .groupByKey()
       .map{
-        case (userId,recs) => UserRecsString(userId,parseList2JsonString(recs.toList.sortWith(_._2 >_._2).take(USER_MAX_RECOMMENDATION).map(x =>{
-          val jsonobj = new JSONObject()
-          jsonobj.put(x._1+"",x._2)
-          jsonobj
+        case (userId,recs) => (userId,parseList2String(recs.toList.sortWith(_._2 >_._2).take(USER_MAX_RECOMMENDATION).map(x =>{
+          x._1+""
         })))
-      }
-    userRecsString.foreach(println)
+      }.toDF().write.mode(SaveMode.Overwrite)
+      .format("jdbc")
+      .option("driver", "com.mysql.jdbc.Driver")
+      .option("url", "jdbc:mysql://172.16.59.13:10065/daas_test?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true")
+      .option("dbtable", "recommendForAllUsers")
+      .option("user", "daas_test_admin")
+      .option("password", "cGdyr7ce0D9wYMkg")
+      .save()
+
+//      .map{
+//        case (userId,recs) => UserRecsString(userId,parseList2JsonString(recs.toList.sortWith(_._2 >_._2).take(USER_MAX_RECOMMENDATION).map(x =>{
+//          val jsonobj = new JSONObject()
+//          jsonobj.put(x._1+"",x._2)
+//          jsonobj
+//        })))
+//      }
+//    userRecsString.foreach(println)
     //TODO：计算商品相似度矩阵
     //获取商品的特征矩阵，数据格式 RDD[(scala.Int, scala.Array[scala.Double])]
     val productFeatures = model.productFeatures.map{case (productId,features) =>
@@ -111,6 +124,10 @@ object OfflineRecommmeder {
     productRecs.show()
     // 关闭spark
     spark.stop()
+  }
+
+  def parseList2String(list :scala.collection.immutable.List[String]): String={
+    list.mkString(",")
   }
 
   def parseList2JsonString(list :scala.collection.immutable.List[JSONObject]): String={
