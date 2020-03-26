@@ -26,6 +26,16 @@ object RddStudyDemoforCogroupandJoin {
       println(t)
     }
 
+    val rdd55 = rdd1.cogroup(rdd2)
+    rdd55.map(r=>{
+      if(r._2._1.toList.size>0){
+        r._2._1.toList(0)
+      }
+      }).foreach(println)
+    for ( t <- rdd55){
+      println(t)
+    }
+
     rdd5 = rdd2.join(rdd1)
     for ( t <- rdd5){
       println(t)
