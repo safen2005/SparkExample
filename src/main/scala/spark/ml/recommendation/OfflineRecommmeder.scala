@@ -84,10 +84,12 @@ object OfflineRecommmeder {
       .map(rating => (rating.user,(rating.product, rating.rating)))
       .groupByKey()
       .map{
-        case (userId,recs) => (userId,parseList2String(recs.toList.sortWith(_._2 >_._2).take(USER_MAX_RECOMMENDATION).map(x =>{
-          x._1+""
+        case (userId,recs) => (userId,parseList2JsonString(recs.toList.sortWith(_._2 >_._2).take(USER_MAX_RECOMMENDATION).map(x =>{
+          val jsonobj = new JSONObject()
+          jsonobj.put(x._1+"",x._2)
+          jsonobj
         })))
-      }.toDF().write.mode(SaveMode.Overwrite)
+      }.toDF("userId","recommendations").write.mode(SaveMode.Overwrite)
       .format("jdbc")
       .option("driver", "com.mysql.jdbc.Driver")
       .option("url", "jdbc:mysql://172.16.59.13:10065/daas_test?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true")
@@ -96,14 +98,6 @@ object OfflineRecommmeder {
       .option("password", "cGdyr7ce0D9wYMkg")
       .save()
 
-//      .map{
-//        case (userId,recs) => UserRecsString(userId,parseList2JsonString(recs.toList.sortWith(_._2 >_._2).take(USER_MAX_RECOMMENDATION).map(x =>{
-//          val jsonobj = new JSONObject()
-//          jsonobj.put(x._1+"",x._2)
-//          jsonobj
-//        })))
-//      }
-//    userRecsString.foreach(println)
     //TODO：计算商品相似度矩阵
     //获取商品的特征矩阵，数据格式 RDD[(scala.Int, scala.Array[scala.Double])]
     val productFeatures = model.productFeatures.map{case (productId,features) =>

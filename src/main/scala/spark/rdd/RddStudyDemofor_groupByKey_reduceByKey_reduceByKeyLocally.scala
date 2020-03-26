@@ -19,10 +19,11 @@ object RddStudyDemofor_groupByKey_reduceByKey_reduceByKeyLocally {
     val rdd5 = sc.makeRDD(Array(("A",5),("B",5),("C",5)))
 
     // ("A",(1,2,3,4)),("B",(1,2,3,4)),("C",(1,2,3,4))
-    /*val rdd1groupByKey = rdd1.groupByKey().collect()
-    for ( t <- rdd1groupByKey){
-      println(t)
-    }*/
+    val rdd1groupByKey = rdd1.groupByKey()
+    rdd1groupByKey.foreach(println)
+//    for ( t <- rdd1groupByKey){
+//      println(t)
+//    }
 
     val rdd11 = rdd1.reduceByKey((x,y) => x + y).cache()
 
@@ -34,32 +35,32 @@ object RddStudyDemofor_groupByKey_reduceByKey_reduceByKeyLocally {
 
     val rdd55 = rdd5.reduceByKey((x,y) => x + y).cache()
 
-    /*val rdd = rdd11.union(rdd22).union(rdd33).union(rdd44)
-    val ret = rdd.groupByKey().map(x => {
-      val key = x._1
-      val group = x._2.toArray
-      (key, (group(0), group(1), group(2), group(3)))
-    })
-    ret.foreach(println)*/
+//    val rdd = rdd11.union(rdd22).union(rdd33).union(rdd44)
+//    val ret = rdd.groupByKey().map(x => {
+//      val key = x._1
+//      val group = x._2.toArray
+//      (key, (group(0), group(1), group(2), group(3)))
+//    })
+//    ret.foreach(println)
 
-    val retbyjoin = rdd11.join(rdd22).map(x => {
-      val key = x._1
-      val value = (x._2._1, x._2._2)
-      (key, value)
-    }).join(rdd33).map(x => {
-      val key = x._1
-      val value = (x._2._1._1,x._2._1._2, x._2._2)
-      (key, value)
-    }).join(rdd44).map(x => {
-      val key = x._1
-      val value = (x._2._1._1,x._2._1._2,x._2._1._3, x._2._2)
-      (key, value)
-    }).join(rdd55).map(x => {
-      val key = x._1
-      val value = (x._2._1._1,x._2._1._2,x._2._1._3,x._2._1._4, x._2._2)
-      (key, value)
-    })
-    retbyjoin.foreach(println)
+//    val retbyjoin = rdd11.join(rdd22).map(x => {
+//      val key = x._1
+//      val value = (x._2._1, x._2._2)
+//      (key, value)
+//    }).join(rdd33).map(x => {
+//      val key = x._1
+//      val value = (x._2._1._1,x._2._1._2, x._2._2)
+//      (key, value)
+//    }).join(rdd44).map(x => {
+//      val key = x._1
+//      val value = (x._2._1._1,x._2._1._2,x._2._1._3, x._2._2)
+//      (key, value)
+//    }).join(rdd55).map(x => {
+//      val key = x._1
+//      val value = (x._2._1._1,x._2._1._2,x._2._1._3,x._2._1._4, x._2._2)
+//      (key, value)
+//    })
+//    retbyjoin.foreach(println)
 
     /*val rdd122 = rdd1.leftOuterJoin(rdd11).collect
     for ( t <- rdd122){
