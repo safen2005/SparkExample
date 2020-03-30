@@ -1,18 +1,88 @@
 package spark.rdd
 
-import org.apache.spark.sql.SparkSession
+import com.alibaba.fastjson.JSON
+import com.sun.org.apache.xalan.internal.xsltc.compiler.util.IntType
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.{Row, SparkSession}
 import org.slf4j.{Logger, LoggerFactory}
 
 object SparkRddTest {
+  case class ProductRating(userId: Int, productId: Int, score: Double, timestamp: Int)
+  // 标准推荐对象，productId,score
+  case class Recommendation(productId: Int, score:Double)
+
+  def parseRating(str: String): ProductRating = {
+    val fields = str.split("::")
+    assert(fields.size == 4)
+    ProductRating(fields(0).toInt, fields(1).toInt, fields(2).toFloat, fields(3).toInt)
+  }
 
   def main(args: Array[String]): Unit = {
     val LOG: Logger = LoggerFactory.getLogger(this.getClass)
     val appname = this.getClass.getSimpleName
     LOG.info(appname)
 
-    val spark = SparkSession.builder().master("local").appName(appname).getOrCreate()
+    val spark = SparkSession.builder().master("local[2]").appName(appname).getOrCreate()
     val sc = spark.sparkContext
 
+    import spark.implicits._
+    // 读取数据
+    val ratingDF = spark.read.textFile("data/mllib/als/sample_movielens_ratings.txt")
+      .map(parseRating).toDF()
+    ratingDF.show(5)
+
+    //设置schema结构
+    val userIdSchema = StructType(
+      Seq(
+        StructField("userId", IntegerType, true),
+        StructField("score", DoubleType, true)
+      )
+    )
+    val productIdSchema = StructType(
+      Seq(
+        StructField("productId", IntegerType, true),
+        StructField("score", DoubleType, true)
+      )
+    )
+
+    val userRdd = sc.textFile("data/mllib/als/sample_movielens_ratings.txt").map(str=>{
+      val fields = str.split("::")
+      assert(fields.size == 4)
+      Row(fields(0).toInt, fields(2).toDouble)
+    })
+
+    val userDF = spark.createDataFrame(userRdd, userIdSchema)
+    //userDF.show()
+    userDF.registerTempTable("user")
+    spark.sql("select userId,count(score),max(score),sum(score) from user group by userId")
+
+    val proRdd = sc.textFile("data/mllib/als/sample_movielens_ratings.txt").map(str=>{
+      val fields = str.split("::")
+      assert(fields.size == 4)
+      Row(fields(1).toInt, fields(2).toDouble)
+    })
+
+    val proDF = spark.createDataFrame(proRdd, productIdSchema)
+    //proDF.show()
+
+    //spark.read.textFile("data/mllib/als/sample_movielens_ratings.txt").show(5)
+
+    val sdklogSchema = StructType(
+      Seq(
+        StructField("e_id", StringType, true),
+        StructField("is_inc", IntegerType, true),
+        StructField("idx", IntegerType, true),
+        StructField("idx_max", IntegerType, true),
+        StructField("idx_max_y", IntegerType, true)
+      )
+    )
+    val sdklogRdd = sc.textFile("E:\\\\IdeaProjects\\\\files\\\\psi_file_iDataIn_sdk_Da50c39927.txt").map(str=>{
+      val js = JSON.parseObject(str)
+      val jsonObject = js.getJSONObject("header")
+      Row(jsonObject.getString("e_id"), jsonObject.getIntValue("is_inc"), jsonObject.getIntValue("idx"), jsonObject.getIntValue("idx_max"), jsonObject.getIntValue("idx_max_y"))
+    })
+    val sdklogDF = spark.createDataFrame(sdklogRdd, sdklogSchema)
+    println(sdklogDF.collect().length)
 //    val rdd = sc.textFile("word\\word.txt").filter(line=>{line.contains("spark")})
 //    println(rdd.count())
 //    println(rdd.collect().length+"")
@@ -65,8 +135,8 @@ object SparkRddTest {
 //    wordPairsRDD.reduceByKey(_+_).foreach(println)
 //    wordPairsRDD.groupByKey().map(t=>(t._1,t._2.sum)).foreach(println)
 
-    val rdd = sc.parallelize(Array(("spark",2),("hadoop",6),("hadoop",4),("spark",6)))
-    rdd.mapValues(x => (x,1)).reduceByKey((x,y) => (x._1+y._1,x._2 + y._2)).mapValues(x => (x._1 / x._2)).collect().foreach(println)
+//    val rdd = sc.parallelize(Array(("spark",2),("hadoop",6),("hadoop",4),("spark",6)))
+//    rdd.mapValues(x => (x,1)).reduceByKey((x,y) => (x._1+y._1,x._2 + y._2)).mapValues(x => (x._1 / x._2)).collect().foreach(println)
 
     sc.stop()
     spark.stop()
