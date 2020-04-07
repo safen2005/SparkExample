@@ -6,80 +6,86 @@ import org.apache.spark.mllib.recommendation.{ALS, Rating}
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.jblas.DoubleMatrix
 
+/**
+  * 基于隐语义模型
+  */
 object OfflineRecommmeder {
+  //  用户物品评分模型
   case class ProductRating(userId: Int, productId: Int, score: Double, timestamp: Int)
 
-  // 标准推荐对象，productId,score
+  //  标准推荐对象，productId,score
   case class Recommendation(productId: Int, score:Double)
 
-  // 用户推荐列表
+  //  用户推荐列表
   case class UserRecs(userId: Int, recs: Seq[Recommendation])
 
-  // 用户推荐列表2
-  case class UserRecsString(userId: Int, recs: String)
-
-  // 商品相似度（商品推荐）
+  //  商品相似度（商品推荐）
   case class ProductRecs(productId: Int, recs: Seq[Recommendation])
 
+  //  解析用户物品评分模型
   def parseRating(str: String): ProductRating = {
     val fields = str.split("::")
     assert(fields.size == 4)
     ProductRating(fields(0).toInt, fields(1).toInt, fields(2).toFloat, fields(3).toInt)
   }
-  // 定义常量
+  //  定义常量
   val MONGODB_RATING_COLLECTION = "Rating"
 
-  // 推荐表的名称
+  //  推荐表的名称
   val USER_RECS = "UserRecs"
   val PRODUCT_RECS = "ProductRecs"
 
   val USER_MAX_RECOMMENDATION = 20
 
   def main(args: Array[String]): Unit = {
-    // 定义配置
+    //  定义配置
     val config = Map(
       "spark.cores" -> "local[*]",
       "mongo.uri" -> "mongodb://localhost:27017/recommender",
       "mongo.db" -> "recommender"
     )
-    // 创建spark session
-    val sparkConf = new SparkConf().setMaster(config("spark.cores")).setAppName("OfflineRecommender")
+    val appname = this.getClass.getSimpleName
+    println(appname)
+    //  创建spark session
+    val sparkConf = new SparkConf().setMaster(config("spark.cores")).setAppName(appname)
     val spark = SparkSession.builder().config(sparkConf).getOrCreate()
 
     import spark.implicits._
-    // 读取数据
+    //  读取数据
     val ratingRDD = spark.read.textFile("data/mllib/als/sample_movielens_ratings.txt")
       .map(parseRating).rdd.map(rating=> (rating.userId, rating.productId, rating.score)).cache()
 
-    //用户的数据集 RDD[Int]
+    //  用户的数据集 RDD[Int]
     val userRDD = ratingRDD.map(_._1).distinct()
+    //  物品的数据集
     val prodcutRDD = ratingRDD.map(_._2).distinct()
 
-    //创建训练数据集
+    //  创建训练数据集
     val trainData = ratingRDD.map(x => Rating(x._1,x._2,x._3))
-    // rank 是模型中隐语义因子的个数, iterations 是迭代的次数, lambda 是ALS的正则化参
+    //  rank 是模型中隐语义因子的个数, iterations 是迭代的次数, lambda 是ALS的正则化参
     val (rank,iterations,lambda) = (50, 5, 0.01)
-    // 调用ALS算法训练隐语义模型
+    //  调用ALS算法训练隐语义模型
     val model = ALS.train(trainData,rank,iterations,lambda)
     //model.productFeatures.foreach(println)
     //model.userFeatures.foreach(println)
-    //计算用户推荐矩阵
+    //  计算用户推荐矩阵
     val userProducts = userRDD.cartesian(prodcutRDD)
-    userProducts.foreach(println)
-    // model已训练好，把id传进去就可以得到预测评分列表RDD[Rating] (userId,productId,rating)
+    //userProducts.foreach(println)
+    //  model已训练好，把id传进去就可以得到预测评分列表RDD[Rating] (userId,productId,rating)
     val preRatings = model.predict(userProducts)
-    preRatings.foreach(println)
+    //preRatings.foreach(println)
 
-//    val userRecs = preRatings
-//      .filter(_.rating > 0)
-//      .map(rating => (rating.user,(rating.product, rating.rating)))
-//      .groupByKey()
-//      .map{
-//        case (userId,recs) => UserRecs(userId,recs.toList.sortWith(_._2 >_._2).take(USER_MAX_RECOMMENDATION).map(x => Recommendation(x._1,x._2)))
-//      }.toDF()
-//    userRecs.show(5)
+    val userRecs = preRatings
+      .filter(_.rating > 0)
+      .map(rating => (rating.user,(rating.product, rating.rating)))
+      .groupByKey()
+      .map{
+        case (userId,recs) => UserRecs(userId,recs.toList.sortWith(_._2 >_._2).take(USER_MAX_RECOMMENDATION).map(x => Recommendation(x._1,x._2)))
+      }.toDF()
+    userRecs.show(5,false)
 
-    val userRecsString = preRatings
+//  结果存入mysql
+    preRatings
       .filter(_.rating > 0)
       .map(rating => (rating.user,(rating.product, rating.rating)))
       .groupByKey()
@@ -105,6 +111,27 @@ object OfflineRecommmeder {
     }
 
     // 计算笛卡尔积并过滤合并
+    productFeatures.cartesian(productFeatures)
+      .filter{case (a,b) => a._1 != b._1}
+      .map{case (a,b) =>
+        val simScore = this.consinSim(a._2,b._2) // 求余弦相似度
+        (a._1,(b._1,simScore))
+      }.filter(_._2._2 > 0.6)
+      .groupByKey()
+      .map{
+        case (productId,items) => (productId,parseList2JsonString(items.toList.sortWith(_._2 >_._2).take(USER_MAX_RECOMMENDATION).map(x =>{
+          val jsonobj = new JSONObject()
+          jsonobj.put(x._1+"",x._2)
+          jsonobj
+        })))
+      }.toDF("productId","simproducts").write.mode(SaveMode.Overwrite)
+      .format("jdbc")
+      .option("driver", "com.mysql.jdbc.Driver")
+      .option("url", "jdbc:mysql://172.16.59.13:10065/daas_test?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true")
+      .option("dbtable", "recommendForProducts")
+      .option("user", "daas_test_admin")
+      .option("password", "cGdyr7ce0D9wYMkg")
+      .save()
     val productRecs = productFeatures.cartesian(productFeatures)
       .filter{case (a,b) => a._1 != b._1}
       .map{case (a,b) =>
@@ -115,13 +142,9 @@ object OfflineRecommmeder {
       .map{case (productId,items) =>
         ProductRecs(productId,items.toList.map(x => Recommendation(x._1,x._2)))
       }.toDF()
-    productRecs.show()
+    productRecs.show(5,false)
     // 关闭spark
     spark.stop()
-  }
-
-  def parseList2String(list :scala.collection.immutable.List[String]): String={
-    list.mkString(",")
   }
 
   def parseList2JsonString(list :scala.collection.immutable.List[JSONObject]): String={
