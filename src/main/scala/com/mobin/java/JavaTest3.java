@@ -2,6 +2,7 @@ package com.mobin.java;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonObject;
+import org.bouncycastle.util.Integers;
 import org.joda.time.DateTime;
 
 import java.io.*;
@@ -10,6 +11,8 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JavaTest3 {
 
@@ -335,8 +338,34 @@ public class JavaTest3 {
 //        bReader.close();
 //        String str = sb.toString();
 //        System.out.println(str );
-        double d1=249639;
-        int d2=4900;
-        System.out.println((int)Math.ceil(d1/d2));
+
+//        double d1=249639;
+//        int d2=4900;
+//        System.out.println((int)Math.ceil(d1/d2));
+
+        String[] ss ={"Android 5.1.1","QQ_735394006_编译","6.0","10.0","6.0.0","6.0.1","8.0.0","4.3","8.1.0","5.1.0","9.1"};
+        for(String s:ss){
+            System.out.println(s);
+            String [] s2 = s.split("\\.");
+            for(String s22:s2){
+                System.out.println(s22);
+            }
+//            int i = Integer.valueOf(s.split(".")[0]);
+//            System.out.println(i+" "+(i>6));
+        }
+    }
+
+    /**
+     * 利用正则表达式判断字符串是否是数字
+     * @param str
+     * @return
+     */
+    public static boolean isNumeric(String str){
+        Pattern pattern = Pattern.compile("[0-9]*");
+        Matcher isNum = pattern.matcher(str);
+        if( !isNum.matches() ){
+            return false;
+        }
+        return true;
     }
 }

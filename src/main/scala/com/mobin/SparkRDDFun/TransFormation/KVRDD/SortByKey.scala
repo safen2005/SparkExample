@@ -9,7 +9,7 @@ object SortByKey {
     val conf = new SparkConf().setMaster("local[2]").setAppName("ReduceByKey")
     val sc = new SparkContext(conf)
     val arr = List(("A",1),("B",1),("A",1),("AB",1),("AB",1),("ABC",1),("ABC",1),("B",1),("C",1),("D",1),("C",1),("D",1),("T",1),("G",1))
-    val rdd = sc.parallelize(arr,2)
+//    val rdd = sc.parallelize(arr,2)
 //    println(rdd.count())
 //    val arr2 = List(("A",1),("B",1),("A",1),("AB",1),("AB",1),("ABC",1),("ABC",1),("B",1),("C",1),("D",1),("C",1),("D",1),("T",1),("G",1))
 //    val rdd2 = sc.parallelize(arr2,2)
@@ -25,30 +25,30 @@ object SortByKey {
 //
 //    rdd.leftOuterJoin(rdd2).foreach(println)
 
-    val indexRdd = rdd
-      .map(r=>r._1)
-      .distinct()
-      .sortBy(r => r)
-      .zipWithUniqueId()
-      .map(a => (a._1, a._2+1)).cache()
-    indexRdd.foreach(println)
-    //保存索引文件
-    val indexRddSave = indexRdd.map(t => t.productIterator.mkString("\t")).cache()
-    val cnt = indexRddSave.count()
-    println("最大索引值="+cnt)
-
-    val arr2 = List(("Z",1),("H",1),("Z",1),("H",1),("A",1),("B",1),("A",1),("AB",1),("AB",1),("ABC",1),("ABC",1),("B",1),("C",1),("D",1),("C",1),("D",1),("T",1),("G",1))
-    val rdd2 = sc.parallelize(arr2,2)
-    val latestIndexRdd = indexRddSave.map(r=>{(r.split("\t")(0),r.split("\t")(1))})
-    val cnt2 = latestIndexRdd.count()
-    println("latestIndexRdd最大索引值="+cnt2)
-
-    rdd2.leftOuterJoin(latestIndexRdd)
-      .filter(r=>{r._2._2==None})
-      .map(r=>r._1).distinct()
-      .sortBy(r => r)
-      .zipWithUniqueId()
-      .map(a => (a._1, a._2+1+cnt2)).foreach(println)
+//    val indexRdd = rdd
+//      .map(r=>r._1)
+//      .distinct()
+//      .sortBy(r => r)
+//      .zipWithUniqueId()
+//      .map(a => (a._1, a._2+1)).cache()
+//    indexRdd.foreach(println)
+//    //保存索引文件
+//    val indexRddSave = indexRdd.map(t => t.productIterator.mkString("\t")).cache()
+//    val cnt = indexRddSave.count()
+//    println("最大索引值="+cnt)
+//
+//    val arr2 = List(("Z",1),("H",1),("Z",1),("H",1),("A",1),("B",1),("A",1),("AB",1),("AB",1),("ABC",1),("ABC",1),("B",1),("C",1),("D",1),("C",1),("D",1),("T",1),("G",1))
+//    val rdd2 = sc.parallelize(arr2,2)
+//    val latestIndexRdd = indexRddSave.map(r=>{(r.split("\t")(0),r.split("\t")(1))})
+//    val cnt2 = latestIndexRdd.count()
+//    println("latestIndexRdd最大索引值="+cnt2)
+//
+//    rdd2.leftOuterJoin(latestIndexRdd)
+//      .filter(r=>{r._2._2==None})
+//      .map(r=>r._1).distinct()
+//      .sortBy(r => r)
+//      .zipWithUniqueId()
+//      .map(a => (a._1, a._2+1+cnt2)).foreach(println)
 
 //    val indexRdd2 = rdd.map(r=>r._1)
 //      .distinct()
@@ -68,9 +68,9 @@ object SortByKey {
 //    val sortByKeyRDD = rdd.sortByKey()
 //    sortByKeyRDD.foreach(println)
 
-//    val rdd = sc.makeRDD(Seq("A","A","A","C","E","E","E","D","B","B","B","B"),2)
-//    rdd.sortBy(r=>r).zipWithIndex().foreach(println)
-//    val rdd12 = rdd.sortBy(r=>r).distinct().zipWithIndex().map(a => (a._1, a._2)).foreach(println)
+    val rdd = sc.makeRDD(Seq("A","A","A","C","E","E","E","D","B","B","B","B"),2)
+    rdd.sortBy(r=>r).zipWithUniqueId().foreach(println)
+    rdd.distinct().sortBy(r=>r).zipWithUniqueId().map(a => (a._1, a._2)).foreach(println)
 
 //    val rdd2 = sc.makeRDD(Seq("H","G","F","Z","T"),2)
 //    val rdd22 = rdd2.sortBy(r=>r).zipWithIndex()

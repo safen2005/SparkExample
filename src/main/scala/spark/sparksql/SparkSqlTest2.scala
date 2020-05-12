@@ -39,13 +39,16 @@ object SparkSqlTest2 {
       .option("user", config("user"))
       .option("password", config("password"))
       .load()
-//    p1DF.show()
+    p1DF.show()
 
     val p2DF = spark.read.jdbc("jdbc:mysql://127.0.0.1:3306/?useUnicode=true&characterEncoding=UTF-8","spark.p2",prop)
-//    p2DF.show()
+    p2DF.show()
 
     val usecols = Seq("id","uid")
     p1DF.join(p2DF,usecols).show()
+    p1DF.join(p2DF,usecols,"right").show()
+    p1DF.join(p2DF,usecols,"full").show()
+    p1DF.join(p2DF,usecols,"left").show()
 
 //    p1DF.registerTempTable("p1")
 //    spark.sql("select id,uid,age,'2020-3-26' as dd from p1").show()
@@ -57,9 +60,6 @@ object SparkSqlTest2 {
 //      .option("user", config("user"))
 //      .option("password", config("password"))
 //      .save()
-
-    //p1DF.join(p2DF,usecol,"right").show()
-    //p1DF.join(p2DF,usecol,"full").show()
     spark.stop()
   }
 }
